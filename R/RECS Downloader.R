@@ -1,0 +1,122 @@
+# RECS Download
+
+rm(list=ls())
+getwd()
+x <- "https://www.eia.gov/consumption/residential/data/2015/csv/recs2015_public_v4.csv"
+
+source("./tests/contents.R")
+source("./tests/pool test.R")
+library(data.table)
+library(tidyverse)
+library(plyr)
+library(dplyr)
+
+
+
+
+
+RPGen.RECS <- function(x){
+start<-proc.time()[3]
+recscols<-(toupper(c("adqinsul", "aircond", "atticfin", "basefin", "bedrooms", "cdd30yr", "cellar", "cooltype", "cwasher", "dishwash", "division", "dntheat",
+                     "doeid", "drafty", "dryer", "dryruse", "elcool", "elperiph", "elwarm", "equipm", "fowarm", "fuelheat", "hdd30yr", "highceil", "hhage",
+                     "kownrent", "lpwarm", "moneypy", "moisture", "ncombath", "nhafbath", "notmoist", "numadult", "numchild", "numberac", "numcfan",
+                     "numlaptop","numtablet","nweight","othrooms","oven","ovenfuel","ovenuse","outgrill","pool","prkgplc1","recbath","regionc","stove",
+                     "stovefuel","stoven","stovenfuel","stories","swimpool","temphomeac","tempniteac","totrooms","tvcolor","typehuq","uatyp10",
+                     "ugwarm","usefo","uselp","useng","usewood","washload","wdwarm","windows","yearmaderange")))
+
+
+
+recs <- fread(x, select = recscols, header = TRUE, showProgress = FALSE)
+
+colnames(recs)<-tolower(colnames(recs))
+setnames(recs,"elperiph","pcprint")
+setnames(recs,"regionc","region")
+setnames(recs, "uatyp10","urban")
+setnames(recs, "moneypy","income")
+setnames(recs, "pool", "poolh")
+
+recs <- recs %>%
+  mutate(urban = case_when(
+    (urban == 'R' ~ 0),
+    (urban != 'R'~ 1))) %>%
+  mutate(location = 2*region -1 + urban) %>%
+  filter(!is.na(location)) %>%
+  mutate(housetyp = case_when(
+    (typehuq == 2 | typehuq == 3) ~ 1,
+    (typehuq == 4 | typehuq == 5) ~ 2,
+    (typehuq == 1) ~3)) %>%
+  filter(housetyp %in% 1:3) %>%
+  mutate(famcat = case_when(
+    (numadult == 1 & numchild == 0 )  ~ 1,
+    (numadult == 1 & numchild > 0  )  ~ 2,
+    (numadult > 1 & numchild == 0  )  ~ 3,
+    (numadult > 1 & numchild >  0  )  ~ 4)) %>%
+  filter(famcat %in% 1:4) %>%
+  mutate(swim = with(recs, ifelse(
+    poolh == 1 | swimpool ==1, 2, 0))) %>%
+  mutate(swim = recbath+swim)
+
+
+recslist<-split(recs,recs$location)
+inccat3<-function(x){
+  x<-x[order(x$income),]
+  
+  len3<-(trunc(nrow(x)/3)) # shortest
+  len1<-round(((nrow(x)+.01)-len3)/2) # one higher if row remainder .33+
+  len2<-(nrow(x)-(len1+len3)) # one higher if row remainder .66+
+  
+  index_1<-len1
+  index_2<-len2+len1
+  index_3<-len3+index_2
+  
+  x[c(0:index_1),]$income<-1
+  x[c((index_1+1):index_2),]$income<-2
+  x[c((index_2+1):index_3),]$income<-3
+  return(x)
+}
+recslist<-lapply(recslist,inccat3)
+recs<-rbind.fill(recslist)
+rm(recslist)
+setnames(recs,"income","inccat")
+
+recs<- recs %>% mutate(pool = 36*(location-1)+12*(housetyp-1)+3*(famcat-1)+inccat)
+
+
+# test
+cat("Testing:")
+cat(" \n")
+
+cat("",contents.test(recs,"urban",0:1),"\n",
+contents.test(recs,"region",1:4), "\n",
+contents.test(recs,"location",1:8),"\n",
+contents.test(recs,"housetyp",1:3),"\n",
+contents.test(recs,"famcat",1:4), "\n",
+contents.test(recs,"inccat",1:3), "\n",
+contents.test(recs,"pool",1:288))
+cat("\n")
+cat(" \n")
+
+if (sum(setdiff(1:288,recs$pool)) > 0){
+  missing <- pool.reader(setdiff(1:288, recs$pool))
+  cat("Household Pools not Included:",sep = "\n")
+  cat(missing, sep ="\n")
+  cat(" \n")
+}
+
+
+recs<-recs[c("pool","doeid","nweight","hdd30yr","cdd30yr","kownrent","stories", "stove","stovefuel", "oven","ovenfuel",
+             "ovenuse","stoven","outgrill","dishwash","cwasher","washload","dryer","dryruse","tvcolor", "numlaptop",
+
+             "numtablet", "pcprint","moisture","prkgplc1", "cooltype",  "tempniteac", "numberac", "numcfan", "notmoist",
+             "highceil",  "windows", "adqinsul", "drafty", "swim","cellar","region","urban","housetyp","famcat","inccat")]
+
+save(recs, file = "./data/RPGen RECS.rda", compress = "xz")
+
+end<-as.numeric((proc.time()[3]-start)/60)
+end<- str_c("RPGen RECS downloaded in ", as.character(round(end,2)), " minutes.")
+
+return(end)
+}
+
+
+RPGen.RECS(x)
