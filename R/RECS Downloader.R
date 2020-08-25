@@ -115,7 +115,7 @@ save(recs, file = "./data/RPGen RECS.rda", compress = "xz")
 end<-as.numeric((proc.time()[3]-start)/60)
 end<- str_c("RPGen RECS downloaded in ", as.character(round(end,2)), " minutes.")
 
-return(end)
+return(writeLines(end))
 }
 
 

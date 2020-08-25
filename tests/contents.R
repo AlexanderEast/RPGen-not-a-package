@@ -1,8 +1,13 @@
 # Contents Test
 # 
 
+
+
+rm(list=ls())
 contents.test<-function(df,column,threshold){
-  
+ 
+  if (column %in% colnames(df)){
+   
   possibilities <- names(table(df[[column]], useNA = "ifany"))
   possibilities[is.na(possibilities)]<- "NA"
   possibilities[is.nan(possibilities)] <- "NaN"
@@ -27,8 +32,14 @@ contents.test<-function(df,column,threshold){
     }
     
   }
+  
+  } else
+  result<- paste("Column not in data frame.")
+  
   return(result)   
 }
+
+
 
 
               
