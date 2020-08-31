@@ -1,9 +1,6 @@
 # Contents Test
 # 
 
-
-
-rm(list=ls())
 contents.test<-function(df,column,threshold){
  
   if (column %in% colnames(df)){

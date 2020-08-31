@@ -5,6 +5,7 @@ getwd()
 x <- "https://www.eia.gov/consumption/residential/data/2015/csv/recs2015_public_v4.csv"
 
 source("./tests/contents.R")
+source("./tests/report card.R")
 source("./tests/pool test.R")
 library(data.table)
 library(tidyverse)
@@ -82,26 +83,8 @@ setnames(recs,"income","inccat")
 recs<- recs %>% mutate(pool = 36*(location-1)+12*(housetyp-1)+3*(famcat-1)+inccat)
 
 
-# test
-cat("Testing:")
-cat(" \n")
+RPGen_reportcard(recs)
 
-cat("",contents.test(recs,"urban",0:1),"\n",
-contents.test(recs,"region",1:4), "\n",
-contents.test(recs,"location",1:8),"\n",
-contents.test(recs,"housetyp",1:3),"\n",
-contents.test(recs,"famcat",1:4), "\n",
-contents.test(recs,"inccat",1:3), "\n",
-contents.test(recs,"pool",1:288))
-cat("\n")
-cat(" \n")
-
-if (sum(setdiff(1:288,recs$pool)) > 0){
-  missing <- pool.reader(setdiff(1:288, recs$pool))
-  cat("Household Pools not Included:",sep = "\n")
-  cat(missing, sep ="\n")
-  cat(" \n")
-}
 
 
 recs<-recs[c("pool","doeid","nweight","hdd30yr","cdd30yr","kownrent","stories", "stove","stovefuel", "oven","ovenfuel",
@@ -113,10 +96,9 @@ recs<-recs[c("pool","doeid","nweight","hdd30yr","cdd30yr","kownrent","stories", 
 save(recs, file = "./data/RPGen RECS.rda", compress = "xz")
 
 end<-as.numeric((proc.time()[3]-start)/60)
-end<- str_c("RPGen RECS downloaded in ", as.character(round(end,2)), " minutes.")
+runtime<- str_c("RPGen RECS downloaded in ", as.character(round(end,2)), " minutes.")
 
-return(writeLines(end))
+return(writeLines(runtime))
 }
 
 
-RPGen.RECS(x)
