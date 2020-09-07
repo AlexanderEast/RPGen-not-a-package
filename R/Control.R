@@ -4,6 +4,9 @@
 rm(list=ls())
 
 
+
+runfile = "test.txt"
+
 RPGen.setup = function() {
 
   inpath   <- "./data/"
@@ -34,7 +37,6 @@ RPGen.setup = function() {
   source("./R/PopGen.R")
   source("./R/Housing.R")
 }    
-
 RPGen.setup()
 
 RPGen.run = function(runfile=NULL) {
@@ -54,6 +56,3 @@ RPGen.run = function(runfile=NULL) {
 RPGen.run("test.txt")
 
 
-
-
-runfile = "test.txt"

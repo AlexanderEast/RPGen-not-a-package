@@ -14,17 +14,20 @@ splitpairs = function(str) {
   }
   return(x)
 }
+
 string.values = function(x){
   y <- str_replace_all(x,","," ")
   w <- lapply(str_split(y," "),as.numeric)[[1]]
   v <- w[!is.na(w)]
   return(v)
 }
+
 cumul.prob = function(x) {
   if (min(x)<0) cat("Negative values in probability vector")
   y <- cumsum(x)
   return(y/max(y))
 }
+
 get.randoms = function(var,n,seeds,varlist,flag) {
   if(flag==0) off <- 0 else off <- 1
   b <- 2*match(var,varlist)-1+off
@@ -33,6 +36,7 @@ get.randoms = function(var,n,seeds,varlist,flag) {
   set.seed(seeds[b:(b-off)],"Marsaglia-Multicarry")
   return(runif(n))
 }
+
 get.seeds = function(init.seed,num) {
   n     <- 2*num
   base  <- as.integer64(2147483647)
@@ -45,16 +49,19 @@ get.seeds = function(init.seed,num) {
   }
   return(seeds)
 }
+
 gen.pop = function(pums) {
   u.pop   <- get.randoms("pums",g$num.persons,g$seeds,g$var.list,0)
   cp.pop  <- cumul.prob(pums$pwgtp)
   return( 1+findInterval(u.pop,cp.pop,rightmost.closed=TRUE))
 }
+
 sampleq = function(x,p,q) {
   cp.x <- cumul.prob(p)
   sel.x <- 1+findInterval(q,cp.x)
   return(sel.x)
 }
+
 bi_norm_cor = function(q,px=c(0,1),py=c(0,1),rho=0,means=c(0,0),sigma=NULL) {
   if (!is.null(sigma)) {
     px[1] <- means[1]
@@ -67,6 +74,7 @@ bi_norm_cor = function(q,px=c(0,1),py=c(0,1),rho=0,means=c(0,0),sigma=NULL) {
   y   <- qnorm(q[,2],mean=py[1]+rho*py[2]*(x-px[1])/px[2],sd=py[2]*(1-rho^2)^0.5)
   return(cbind(x,y))
 }
+
 adjust_weight = function(y) {
   adj <- y$weight / y$weight_adj
   y[, `:=`(Blood_mass, Blood_mass*adj)]
@@ -175,8 +183,8 @@ read.console = function() {
     else if(run.seed > 2147483646) cat("\n Error: Run seed over maximum of 2147483646")
   }  
   
-  allstates <- fread("./data/states.txt",colClasses = "character") # AE:
-  # couldnt get .rda read in to work with following lines. 
+  allstates <- fread("./data/states.txt",colClasses = "character") 
+  # AE: couldnt get .rda read in to work with following lines. 
 
   rg  <- readline("Enter list of region codes:")
   rg2 <- str_replace_all(rg, "[ .,]", "")
@@ -207,6 +215,7 @@ read.console = function() {
     allregs        = allregs)
   return(specs)
 }
+
 read.popfile = function(popfile){
   
   run.name       <- "test"
@@ -302,6 +311,7 @@ read.popfile = function(popfile){
   return(specs)
   
 }
+
 read.pums = function() {
   filename <- files$pums
   kept <- 0
@@ -344,6 +354,7 @@ httkvars = function(p) {
   q$num <- 1:nrow(q)
   return(q)
 }
+
 random_gen_height_weight = function(hbw_dt,specs) {
   mean_logh <- g <- gender <- r <- reth <- height_spline <- NULL
   age_months <- mean_logbw <- weight_spline <- hw_kde <- nkde <- NULL
@@ -374,6 +385,7 @@ random_gen_height_weight = function(hbw_dt,specs) {
   hbw_dt[, `:=`(q.hw2,NULL)]
   return(hbw_dt)
 }
+
 random_tissue_masses_flows = function (tmf_dt) {
   id <- mass_mean <- height_ref <- height <- mass_ref <- tissue <- NULL
   gender <- age_years <- age_months <- weight <- bonemass_mean <- NULL
@@ -454,6 +466,7 @@ random_tissue_masses_flows = function (tmf_dt) {
   # tmf_dt[, `:=`(org_mass_sum, NULL)]
   return(tmf_dt)
 }
+
 spleen_mass_children = function (height, weight, gender) 
 {
   sm <- rep(NA, length(gender))
@@ -495,6 +508,3 @@ popgen = function (runfile=NULL) {
   return(indiv_dt)
 }
 
-
-
-#rm(list=setdiff(ls(), "x"))

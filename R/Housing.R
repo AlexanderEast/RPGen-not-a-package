@@ -8,13 +8,13 @@ read.ahs = function(filename=NULL) {
   x1[x1<0] <- NA
   return(x1)
 }
+
 read.recs = function(filename=NULL) {
   if (is.null(filename)) filename <- paste0(files$inpath,files$recs)
   x2 <- get(load((filename)))
   x2[x2<0] <- NA
   return(x2)
 }
-
 
 match.pop.housing = function(pop,ahsname=NULL,recsname=NULL) {
   cat("\n Starting population-housing matching \n")
