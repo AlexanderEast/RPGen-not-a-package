@@ -1,14 +1,10 @@
 # Control file for EPA's RPGen
 # Designed and written for EPA by WGG of ICF, September 26, 2017
 # Updated by AE of ORAU, 2020.
-rm(list=ls())
 
-
-
-runfile = "test.txt"
-
-RPGen.setup = function() {
-
+RPGen.run = function(runfile=NULL) {
+  # setup 
+  
   inpath   <- "./data/"
   outpath  <- "./output/"
   run      <- "runfile.txt"
@@ -36,10 +32,6 @@ RPGen.setup = function() {
   library("survey")
   source("./R/PopGen.R")
   source("./R/Housing.R")
-}    
-RPGen.setup()
-
-RPGen.run = function(runfile=NULL) {
   
   pop  <<- popgen(runfile)
   dir  <- paste0(files$outpath,g$run.name)
@@ -53,6 +45,7 @@ RPGen.run = function(runfile=NULL) {
   cat("Housing generator completed: R object = 'pophouse', filename =",filename,"\n")
 }  
 
-RPGen.run("test.txt")
+#RPGen.run("test.txt")
+RPGen.run()
 
-
+warnings()
