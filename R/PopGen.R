@@ -114,7 +114,6 @@ adjust_weight = function(y) {
 
 
 # FILE READING IN:
-
 read.console = function() {
   if(exists("specs")) rm(specs,inherits=TRUE)
   run.name <- ""
@@ -184,19 +183,22 @@ read.console = function() {
   }  
   
   allstates <- fread("./data/states.txt",colClasses = "character") 
-  # AE: couldnt get .rda read in to work with following lines. 
-
+  
   rg  <- readline("Enter list of region codes:")
   rg2 <- str_replace_all(rg, "[ .,]", "")
   rg3 <- string.values(rg2)
   st  <- readline("Enter list of state FIPS codes:") 
   st2 <- str_replace_all(st, "[ .,]", "")
   st3 <- string.values(st2)
-  if (rg3=="" & st3[1]=="") st3 <- c(allstates$FIPS) 
+  #if (rg3=="" & st3[1]=="") st3 <- c(allstates$FIPS) 
+  if (length(rg3) == 0 ){
+    st3 <- c(st3,allstates$FIPS)
+  } else {
   if (str_detect(rg3,"1"))  st3 <- c(st3,allstates$FIPS[allstates$region=="1"])
   if (str_detect(rg3,"2"))  st3 <- c(st3,allstates$FIPS[allstates$region=="2"])
   if (str_detect(rg3,"3"))  st3 <- c(st3,allstates$FIPS[allstates$region=="3"])    
   if (str_detect(rg3,"4"))  st3 <- c(st3,allstates$FIPS[allstates$region=="4"])
+  }
   st4     <- unique(st3[order(st3)])
   states  <- st4[st4!=""]
   allregs <- unique(allstates[allstates$FIPS %in% states]$region)
@@ -502,7 +504,7 @@ popgen = function (runfile=NULL) {
   indiv_dt[, `:=` (age_years,  age)]
   indiv_dt[, `:=` (age_months, temp_age_months)]  
   indiv_dt <- adjust_weight(y = indiv_dt)
-  #indiv_dt$q.gliv <- NULL # q.gliv does not exist?
+  #indiv_dt$q.gliv <- NULL # AE: q.gliv does not exist?
   setnames(indiv_dt,"vehicles","cars")
   indiv_dt <- setorder(indiv_dt,num)
   return(indiv_dt)

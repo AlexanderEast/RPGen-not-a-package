@@ -45,7 +45,3 @@ RPGen.run = function(runfile=NULL) {
   cat("Housing generator completed: R object = 'pophouse', filename =",filename,"\n")
 }  
 
-#RPGen.run("test.txt")
-RPGen.run()
-
-warnings()
