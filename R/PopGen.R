@@ -113,7 +113,8 @@ adjust_weight = function(y) {
 }
 
 
-# FILE READING IN:
+# FILE READING:
+
 read.console = function() {
   if(exists("specs")) rm(specs,inherits=TRUE)
   run.name <- ""
