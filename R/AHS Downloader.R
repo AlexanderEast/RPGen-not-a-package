@@ -30,7 +30,7 @@ ahscols<-(toupper(c("acprimary","acsecndry","bathrooms","bedrooms","bld","contro
                     "unitfloors","unitsize","walk","washer","watsource","weight","yrbuilt")))
 
 
-ahs<-fread("./R/household.csv", encoding = "UTF-8", header=TRUE, select = ahscols)
+ahs<-fread("./household.csv", encoding = "UTF-8", header=TRUE, select = ahscols)
 file.remove("household.csv")
 colnames(ahs)<-tolower(colnames(ahs))
 
@@ -119,7 +119,7 @@ new<-c("acprim","acsec","baths","bedrms","built","hequip","lot","pwt","rooms",
 
 setnames(ahs, old,new)
 
-ahs<-ahs[c("pool", "acprim", "acsec","baths","bedrms","built","hequip","heatfuel","sewdis",
+ahs<-ahs[c("pool", "acprim", "acsec","rooms","baths","bedrms","built","hequip","heatfuel","sewdis",
            "unitsf","water","control","income")]
 
 

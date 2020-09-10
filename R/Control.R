@@ -89,5 +89,3 @@ if (length(ahspools > 0) & length(recspools > 0)){
 }  
 
 
-RPGen.run('test.txt')
-
