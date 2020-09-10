@@ -32,6 +32,7 @@ ahscols<-(toupper(c("acprimary","acsecndry","bathrooms","bedrooms","bld","contro
 
 ahs<-fread("./household.csv", encoding = "UTF-8", header=TRUE, select = ahscols)
 file.remove("household.csv")
+file.remove("AHS RPGen.csv")
 colnames(ahs)<-tolower(colnames(ahs))
 
 ahs<- ahs %>% mutate_each(funs(str_replace_all(.,"'",""))) %>%
