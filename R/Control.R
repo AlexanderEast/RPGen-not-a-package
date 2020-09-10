@@ -36,9 +36,7 @@ RPGen.run = function(runfile=NULL) {
   pop  <<- popgen(runfile)
   dir  <- paste0(files$outpath,g$run.name)
   if(!file.exists(dir)) dir.create(dir,recursive=TRUE)
-  filename <- paste0(files$outpath,g$run.name,"/pop.csv") 
   pophouse <<- match.pop.housing(pop,NULL,NULL)
-  write.csv(pop,filename,row.names = FALSE)
   filename <- paste0(files$outpath,g$run.name,"/pophouse.csv") 
   write.csv(pophouse,filename,row.names = FALSE)
   
@@ -90,7 +88,6 @@ if (length(ahspools > 0) & length(recspools > 0)){
   #rm(list = setdiff(ls(), c("pophouse","mismatchedhousing")))
 }  
 
-RPGen.run("test.txt")
 
-
+RPGen.run('test.txt')
 
