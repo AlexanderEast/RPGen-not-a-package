@@ -4,7 +4,10 @@
 
 # __________ RANDOMIZATION AND SORTING __________: #
 
-
+#' Splits a character into a vector of character values of length two.
+#' 
+#' @param   str a character
+#' @return  a character vector with length two
   
 splitpairs = function(str) {
   n <- str_length(str)/2
@@ -17,18 +20,45 @@ splitpairs = function(str) {
   return(x)
 }
 
+#' Removes commas from a character.
+#' 
+#' @param   x a character
+#' @return  a numeric vector without commas. 
+
 string.values = function(x){
+  
   y <- str_replace_all(x,","," ")
   w <- lapply(str_split(y," "),as.numeric)[[1]]
   v <- w[!is.na(w)]
   return(v)
 }
 
+#' Finds the cumulative probability. 
+#' 
+#' Prints error code if proability is less than 0.
+#' 
+#' @param   x a vector of numerics
+#' @return  a numeric vector with the cumulative probabily. 
+
 cumul.prob = function(x) {
   if (min(x)<0) cat("Negative values in probability vector")
   y <- cumsum(x)
   return(y/max(y))
 }
+
+#' Creates random values from seed. 
+#' 
+#' Contains a flag for changing seeds in a sensitivitiy analysis,
+#' but this is not called in RPGen. Take in a dataframe and selects
+#' n number of random values as specified by seed and a list of guiding
+#' variables (varlist).
+#' 
+#' @param   var      name of dataframe
+#' @param   n        number of individuals to be selected
+#' @param   seeds    seeds used to replicate random selection
+#' @param   varlist  parameters to narrow selection criteria in PUMS
+#' @param   flag     Used to hold certain seeds constant
+#' @return  a numeric vector with the cumulative probabily
 
 get.randoms = function(var,n,seeds,varlist,flag) {
   if(flag==0) off <- 0 else off <- 1
@@ -38,6 +68,15 @@ get.randoms = function(var,n,seeds,varlist,flag) {
   set.seed(seeds[b:(b-off)],"Marsaglia-Multicarry")
   return(runif(n))
 }
+
+#' Creates multiple seeds 
+#' 
+#' Mutiple seeds are used as a mechanisim in the sensitivity 
+#' analysis. 
+#' 
+#' @param   init.seed  The initial seed.
+#' @param   num        The number of seeds to create, based on data inputs. 
+#' @return  two seeds for each dataset input.  
 
 get.seeds = function(init.seed,num) {
   n     <- 2*num
@@ -52,17 +91,40 @@ get.seeds = function(init.seed,num) {
   return(seeds)
 }
 
+#' Selects random users from PUMS input
+#' 
+#' Finds the cumulative probability using PUMS' pwgtp weighting variable.
+#' Selects random users using the cumulative sum interval using get.randoms. 
+#' This is done for the 
+#' @param   pums       The pums dataframe
+#' @param   num        The number of seeds to create, based on data inputs. 
+#' @return  a dataframe with n number of observations, randomly selected,
+#'          but by weighted probability and with a set seed.   
+
 gen.pop = function(pums) {
   u.pop   <- get.randoms("pums",g$num.persons,g$seeds,g$var.list,0)
   cp.pop  <- cumul.prob(pums$pwgtp)
   return( 1+findInterval(u.pop,cp.pop,rightmost.closed=TRUE))
 }
 
-sampleq = function(x,p,q) {
+#' Finds the interval between two numeric vectors
+#' 
+#' @param   p a numeric vector
+#' @param   q a numeric vector
+#' @return  a numeric vector with the interval between p and q.   
+
+sampleq = function(p,q){
   cp.x <- cumul.prob(p)
   sel.x <- 1+findInterval(q,cp.x)
   return(sel.x)
 }
+
+#' bi_norm_cor
+#' 
+#' DD<-------------
+#' 
+#' @param   q 
+#' @return  a binormal distributon
 
 bi_norm_cor = function(q,px=c(0,1),py=c(0,1),rho=0,means=c(0,0),sigma=NULL) {
   if (!is.null(sigma)) {
@@ -76,6 +138,12 @@ bi_norm_cor = function(q,px=c(0,1),py=c(0,1),rho=0,means=c(0,0),sigma=NULL) {
   y   <- qnorm(q[,2],mean=py[1]+rho*py[2]*(x-px[1])/px[2],sd=py[2]*(1-rho^2)^0.5)
   return(cbind(x,y))
 }
+
+
+#' Adjusts the weight of physiological parameters per weight adjustment from httk.
+#' 
+#' @param   y a dataframe with physiological parameters 
+#' @return  a dataframe with physiological parameters adjusted in accordance with weight's adjustment. 
 
 adjust_weight = function(y) {
   adj <- y$weight / y$weight_adj
@@ -116,6 +184,12 @@ adjust_weight = function(y) {
 
 
 # __________ FILE READING __________: #
+
+#' Reads and stores user input
+#' 
+#' Displays error codes when entries outside of the bounds are entered.
+#' 
+#' @return  specs, a list containing the speicifcations of the user to create the population. 
 
 read.console = function() {
   if(exists("specs")) rm(specs,inherits=TRUE)
@@ -221,6 +295,13 @@ read.console = function() {
   return(specs)
 }
 
+
+#' Reads and stores input from popfile .txt file 
+#' 
+#' Creates a list to apply user specifications to the datasets. 
+#' 
+#' @return  specs, a list containing the speicifcations of the user to create the population. 
+
 read.popfile = function(popfile){
   
   run.name       <- "test"
@@ -317,6 +398,14 @@ read.popfile = function(popfile){
   
 }
 
+
+#' Reads in PUMS data
+#'
+#' Uses filename from files in Control.R's Run.RPGen. Only loads in region files
+#' necessary for specified run. 
+#'
+#' @return  PUMS dataframe 
+
 read.pums = function() {
   filename <- files$pums
   kept <- 0
@@ -360,6 +449,17 @@ httkvars = function(p) {
   return(q)
 }
 
+#' Generates height and weight for individuals given ethnicity age, and gender. 
+#'
+#' Adapted from httk, contains get.randoms() to add variabiltiy. 
+#' @citation Pearce, R., Setzer, R., Strope, C., Sipes, N., & Wambaugh, J. (2017). 
+#'           R Package for High-Throughput Toxicokinetics. Journal of Statistical Software, 
+#'           79(4), 1 - 26. doi:http://dx.doi.org/10.18637/jss.v079.i04 
+#' 
+#' @param  hbw_dt dataframe with ethnicity, age, and gender
+#' @param  specs  user limits on ethnicity, age, and gender
+#' @return dataframe with height and bodyweight generated
+
 random_gen_height_weight = function(hbw_dt,specs) {
   mean_logh <- g <- gender <- r <- reth <- height_spline <- NULL
   age_months <- mean_logbw <- weight_spline <- hw_kde <- nkde <- NULL
@@ -390,6 +490,17 @@ random_gen_height_weight = function(hbw_dt,specs) {
   hbw_dt[, `:=`(q.hw2,NULL)]
   return(hbw_dt)
 }
+
+
+#' Generates parameters used toxicokinetics from ethnicity, age, gender, weight, and height. 
+#'
+#' Adapted from httk, contains get.randoms() to add variabiltiy. 
+#' @citation Pearce, R., Setzer, R., Strope, C., Sipes, N., & Wambaugh, J. (2017). 
+#'           R Package for High-Throughput Toxicokinetics. Journal of Statistical Software, 
+#'           79(4), 1 - 26. doi:http://dx.doi.org/10.18637/jss.v079.i04 
+#' 
+#' @param  tmf_dt dataframe with ethnicity, age, gender, weight and height
+#' @return dataframe with toxicokinetic parameters generated
 
 random_tissue_masses_flows = function (tmf_dt) {
   id <- mass_mean <- height_ref <- height <- mass_ref <- tissue <- NULL
@@ -472,6 +583,19 @@ random_tissue_masses_flows = function (tmf_dt) {
   return(tmf_dt)
 }
 
+
+#' Generates spleen mass for children. 
+#'
+#' Adapted from httk: 
+#' @citation Pearce, R., Setzer, R., Strope, C., Sipes, N., & Wambaugh, J. (2017). 
+#'           R Package for High-Throughput Toxicokinetics. Journal of Statistical Software, 
+#'           79(4), 1 - 26. doi:http://dx.doi.org/10.18637/jss.v079.i04 
+#' 
+#' @param  height height of individual
+#' @param  weight weight of individual
+#' @param  gender gender of individual
+#' @return spleen mass
+
 spleen_mass_children = function (height, weight, gender) 
 {
   sm <- rep(NA, length(gender))
@@ -481,6 +605,14 @@ spleen_mass_children = function (height, weight, gender)
 }
 
 # __________ POPGEN __________: #
+
+#' Creates a population and matching physoloigical/toxicokinetic variables.  
+#'
+#' Accepts either console entry or a runfile in the /input/ folder before 
+#' creating a population using PUMS and httk.
+#'
+#' @param   runfile character string of name of runfile, followed by .txt extension.
+#' @return  a data table containing the generated random population. 
 
 popgen = function (runfile=NULL) {
   cat("\n HEM population generator module")

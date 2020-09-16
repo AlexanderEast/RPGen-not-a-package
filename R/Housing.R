@@ -9,7 +9,7 @@
 #' no filename entered(as is the case in when run) 
 #'
 #' @param   filename name and directory of AHS input file.
-#' @return  AHS Dataframe. 
+#' @return  AHS dataframe 
 
 read.ahs = function(filename=NULL) {
   if (is.null(filename)) filename <- paste0(files$inpath,files$ahs)
@@ -24,7 +24,7 @@ read.ahs = function(filename=NULL) {
 #' no filename entered(as is the case in when run) 
 #'
 #' @param   filename name and directory of AHS input file.
-#' @return  RECS Dataframe. 
+#' @return  RECS dataframe
 
 read.recs = function(filename=NULL) {
   if (is.null(filename)) filename <- paste0(files$inpath,files$recs)
