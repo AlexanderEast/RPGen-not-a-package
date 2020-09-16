@@ -1,22 +1,25 @@
-# RECS Download
+# RECS Downloader
+# AE, ORAU, 2020
 
-rm(list=ls())
-getwd()
-x <- "https://www.eia.gov/consumption/residential/data/2015/csv/recs2015_public_v4.csv"
-
-source("./tests/contents.R")
-source("./tests/report card.R")
-source("./tests/pool test.R")
-library(data.table)
-library(tidyverse)
-library(plyr)
-library(dplyr)
-
-
-
-
+#' Downloads 2015 RECS Data and Formats for RPGen
+#'
+#' Selects relevant columns and creates pool input (urban, location, 
+#' housetyp, famcat, inccat) to create pool. Renames pool,
+#' meaning number of swimming pools, to 'swim' to avoid confusion.  
+#' Data from https://www.eia.gov/consumption/residential/data/2015/
+#'
+#' @param   x A hyperlink to RECS 2015 Survey Data.
+#' @return  Runtime for the complete download and test.
+#' @export  RPGen_RECS.rda (where the underscore is a space)
 
 RPGen.RECS <- function(x){
+
+suppressPackageStartupMessages(
+source("./R/Packages.R"))
+source("./tests/contents.R")
+source("./tests/report card.R")
+source("./tests/pool test.R")  
+  
 start<-proc.time()[3]
 recscols<-(toupper(c("adqinsul", "aircond", "atticfin", "basefin", "bedrooms", "cdd30yr", "cellar", "cooltype", "cwasher", "dishwash", "division", "dntheat",
                      "doeid", "drafty", "dryer", "dryruse", "elcool", "elperiph", "elwarm", "equipm", "fowarm", "fuelheat", "hdd30yr", "highceil", "hhage",
@@ -36,6 +39,7 @@ setnames(recs, "uatyp10","urban")
 setnames(recs, "moneypy","income")
 setnames(recs, "pool", "poolh")
 
+recs <- data.frame(recs)
 recs <- recs %>%
   mutate(urban = case_when(
     (urban == 'R' ~ 0),
@@ -86,7 +90,6 @@ recs<- recs %>% mutate(pool = 36*(location-1)+12*(housetyp-1)+3*(famcat-1)+incca
 RPGen_reportcard(recs)
 
 
-
 recs<-recs[c("pool","doeid","nweight","hdd30yr","cdd30yr","kownrent","stories", "stove","stovefuel", "oven","ovenfuel",
              "ovenuse","stoven","outgrill","dishwash","cwasher","washload","dryer","dryruse","tvcolor", "numlaptop",
 
@@ -101,4 +104,4 @@ runtime<- str_c("RPGen RECS downloaded in ", as.character(round(end,2)), " minut
 return(writeLines(runtime))
 }
 
-
+RPGen.RECS("https://www.eia.gov/consumption/residential/data/2015/csv/recs2015_public_v4.csv")

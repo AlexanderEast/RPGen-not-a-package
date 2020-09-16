@@ -1,22 +1,27 @@
-# AHS Download
+# AHS Downloader
+# AE, ORAU, 2020
 
-rm(list=ls())
-getwd()
-x <- "http://www2.census.gov/programs-surveys/ahs/2017/AHS%202017%20National%20PUF%20v3.0%20CSV.zip"
-
-source("./tests/contents.R")
-source("./tests/pool test.R")
-source("./tests/report card.R")
-library(data.table)
-library(plyr)
-library(dplyr)
-library(stringr)
-library(downloader)
+#' Downloads 2017 AHS Data and Formats for RPGen
+#'
+#' Selects columns and creates pool input (urban, location, 
+#' housetyp, famcat, inccat) to create pool. Codes in lot and unit
+#' size.
+#'
+#' Data from https://www.census.gov/programs-surveys/ahs/data/2017/ahs-2017-public-use-file--puf-/ahs-2017-national-public-use-file--puf-.html
+#'
+#' @param   x A hyperlink to AHS 2017 Survey Data.
+#' @return  Runtime for the complete download and test.
+#' @export  AHS_RECS.rda (where the underscore is a space)
 
 
 AHS.download<-function(x){
   
-
+suppressPackageStartupMessages(
+source("./R/Packages.R"))
+source("./tests/contents.R")
+source("./tests/report card.R")
+source("./tests/pool test.R") 
+  
 start<-proc.time()[3]
 
 AHSNAME<-"AHS RPGen.csv"
@@ -35,7 +40,7 @@ file.remove("household.csv")
 file.remove("AHS RPGen.csv")
 colnames(ahs)<-tolower(colnames(ahs))
 
-ahs<- ahs %>% mutate_each(funs(str_replace_all(.,"'",""))) %>%
+ahs<- ahs %>% mutate_each(list(str_replace_all(.,"'",""))) %>%
   mutate_if(is.character,as.numeric) %>%
   filter(numadults>0 & numpeople >0) %>%
   mutate(region = case_when(
@@ -131,4 +136,4 @@ runtime<- str_c("RPGen AHS downloaded in ", as.character(round(end,2)), " minute
 return(writeLines(runtime))
 }
 
-AHS.download(x)
+AHS.download("http://www2.census.gov/programs-surveys/ahs/2017/AHS%202017%20National%20PUF%20v3.0%20CSV.zip")

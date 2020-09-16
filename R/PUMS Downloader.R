@@ -1,23 +1,35 @@
-# PUMS Download
+# PUMS Downloader
+# AE, ORAU, 2020
 
-rm(list=ls())
-getwd()
+#' Downloads 2014-2018 PUMS Person and 2014-2018 PUMS Housing Data and Formats for RPGen
+#'
+#' Both Data inputs are 5 year surveys. 
+#' 
+#' Selects columns and creates pool input (urban, location, 
+#' housetyp, famcat, inccat) to create pool. Codes in lot and unit
+#' size.
+#'
+#' Data from https://www.census.gov/programs-surveys/acs/data/pums.html
+#'
+#' @param   pumspeople A hyperlink to PUMS 2014 - 2018 Person data
+#' @param   pumshousing A hyperlink to PUMS 2014 - 2018 Housing data
+#' @return  Runtime for the complete download and test.
+#' @export  RPGen_PUMS_Region_1.rda,RPGen_PUMS_Region_2.rda,RPGen_PUMS_Region_3.rda,RPGen_PUMS_Region_4.rda
+#'          (where the underscore is a space)
 
+people ="https://www2.census.gov/programs-surveys/acs/data/pums/2018/5-Year/csv_pus.zip"
+housing  = "https://www2.census.gov/programs-surveys/acs/data/pums/2018/5-Year/csv_hus.zip"
 
-source("./tests/contents.R")
-source("./tests/report card.R")
-source("./tests/pool test.R")
-library(data.table)
-library(stringr)
-library(plyr)
-library(dplyr)
-library(downloader)
+RPGen.PUMS <- function(pumspeople,pumshousing){
+  
+  suppressPackageStartupMessages(
+  source("./R/Packages.R"))
+  source("./tests/contents.R")
+  source("./tests/report card.R")
+  source("./tests/pool test.R") 
 
+  start<-proc.time()[3]
 
-
-
-
-pumshousing  = "https://www2.census.gov/programs-surveys/acs/data/pums/2018/5-Year/csv_hus.zip"
 
 PUMSNAME<-"PUMS_Houses_RPGen.zip"
 pums_housing_variables<-toupper(c("adjinc", "hincp","np","region","serialno","puma","st","bld",
@@ -33,23 +45,13 @@ pumsb<-fread("psam_husb.csv", encoding = "UTF-8", header=TRUE, select = pums_hou
 pumsc<-fread("psam_husc.csv", encoding = "UTF-8", header=TRUE, select = pums_housing_variables)
 pumsd<-fread("psam_husd.csv", encoding = "UTF-8", header=TRUE, select = pums_housing_variables)
 pumsh<-rbind(pumsa,pumsb,pumsc,pumsd)
-
 rm(pumsa,pumsb,pumsc,pumsd)
 file.remove(c("psam_husa.csv","psam_husb.csv","psam_husc.csv","psam_husd.csv","PUMS_Houses_RPGen.zip"))
 colnames(pumsh)<-tolower(colnames(pumsh))
 
 
-
-pumsh<-fread("pumshousing.csv")
 pumsh<-pumsh[pumsh$type == 1 & pumsh$np > 0 & pumsh$region < 5]
 pumsh<-pumsh[,!("type"), with = FALSE]
-
-
-
-
-pumspeople ="https://www2.census.gov/programs-surveys/acs/data/pums/2018/5-Year/csv_pus.zip"
-
-
 
 
 PUMSPNAME<-"PUMS_People_RPGen.zip"
@@ -64,29 +66,15 @@ pumspd<-fread("psam_pusd.csv", encoding = "UTF-8", header=TRUE, select = pums_pe
 pumsp<-rbind(pumspa,pumspb,pumspc,pumspd)
 rm(pumspa,pumspb,pumspc,pumspd)
 colnames(pumsp)<-tolower(colnames(pumsp))
-file.remove(c("psam_pusa.csv","psam_pusb.csv","psam_pusc.csv","psam_pusd.csv, PUMS_Houses_RPGen.zip"))
 
+file.remove(c("psam_pusa.csv","psam_pusb.csv","psam_pusc.csv","psam_pusd.csv"))
+file.remove(PUMSPNAME)
+file.remove(PUMSNAME)
 
-pumsh<-fread("pumshousing.csv")
 pums<-merge(pumsh,pumsp,by = "serialno")
 rm(pumsh,pumsp)
 pums<- pums[order(pums$serialno)]
 
-fwrite(pums, "pums.csv")
-
-
-rm(list=ls())
-
-
-##
-#
-#
-#
-#
-#
-##
-
-pums<-fread("pums.csv")
 
 # 1. Change names from PUMS naming to RPGen convention
 
@@ -102,6 +90,7 @@ setnames(pums,"bld","housetyp")
 
 # 2. Remove households with children living alone , create compid and income.
 
+pums <- data.frame(pums)
 pums <- pums %>% filter(!(age < 18 && np == 1))%>%
   select(-np) %>%
   mutate(puma = sprintf("%05d",puma)) %>%
@@ -266,7 +255,10 @@ save(region4, file = "./data/RPGen PUMS Region 4.rda", compress = "xz")
 
 # 12. Stop timer.
 
-end<-as.numeric(((proc.time()[3]-start)/60)/60)
-runtime<- str_c("RPGen PUMS downloaded in ", as.character(round(end,2)), "hours.")
+end<-as.numeric((proc.time()[3]-start)/60)
+runtime<- str_c("RPGen PUMS downloaded in ", as.character(round(end,2)), " minutes.")
 
+return(writeLines(runtime))
+}
 
+RPGen.PUMS(people,housing)

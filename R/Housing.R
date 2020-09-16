@@ -2,6 +2,15 @@
 # Designed and written for EPA by WGG of ICF, Nomvember 26, 2017
 # Updated by AE of ORAU, 2020.
 
+
+#' Reads in AHS data
+#'
+#' Uses filename from files in Control.R's Run.RPGen if
+#' no filename entered(as is the case in when run) 
+#'
+#' @param   filename name and directory of AHS input file.
+#' @return  AHS Dataframe. 
+
 read.ahs = function(filename=NULL) {
   if (is.null(filename)) filename <- paste0(files$inpath,files$ahs)
   x1 <- get(load((filename)))
@@ -9,12 +18,30 @@ read.ahs = function(filename=NULL) {
   return(x1)
 }
 
+#' Reads in RECS data
+#'
+#' Uses filename from files in Control.R's Run.RPGen if
+#' no filename entered(as is the case in when run) 
+#'
+#' @param   filename name and directory of AHS input file.
+#' @return  RECS Dataframe. 
+
 read.recs = function(filename=NULL) {
   if (is.null(filename)) filename <- paste0(files$inpath,files$recs)
   x2 <- get(load((filename)))
   x2[x2<0] <- NA
   return(x2)
 }
+
+#' Calls read.ahs and 
+#'
+#' Uses filename from files in Control.R's Run.RPGen if
+#' no filename entered(as is the case in when run) 
+#'
+#' @param   pop PUMS and httk population from user input (PopGen)
+#' @param   ahsname Optional name of AHS dataframe
+#' @param   recsname Optional name of RECS dataframe 
+#' @return  RECS Dataframe.
 
 match.pop.housing = function(pop,ahsname=NULL,recsname=NULL) {
   cat("\n Starting population-housing matching \n")
@@ -57,5 +84,10 @@ match.pop.housing = function(pop,ahsname=NULL,recsname=NULL) {
   ph$family <- 1 + 5*ph$famcat + 4*(ph$famcat %%2)
   return(ph)
 } 
+
+
+
+
+
 
 

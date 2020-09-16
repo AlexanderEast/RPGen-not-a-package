@@ -19,17 +19,7 @@ RPGen.run = function(runfile=NULL) {
   
   suppressPackageStartupMessages(TRUE)
   # Load required packages and source all code modules.
-  library("data.table")
-  library("stringr")
-  library("plyr")
-  library("dplyr")
-  library("dtplyr")
-  library("ggplot2")
-  library("bit64")
-  library("httk")
-  library("msm")
-  library("truncnorm")
-  library("survey")
+  source("./R/Packages.R")
   source("./R/PopGen.R")
   source("./R/Housing.R")
   
