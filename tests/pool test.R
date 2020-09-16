@@ -1,5 +1,15 @@
-# Pool test
-# Given a number or character 1-288, will return the name of that pool.
+# Pool Reader
+# AE, ORAU, 2020
+
+#' Returns the name of any given pool numeric. 
+#'
+#' Used in testing (though not a test itself) Where a pool number is 
+#' converted into a readable category containing location, house type,
+#' family category, and income.
+#'
+#' @param   x a numeric or series of numerics 1-288.
+#' @return  Name of a pool.
+#' @example pool.reader(1)
 
 pool.reader<- function(x){
   
@@ -31,10 +41,6 @@ pool.reader<- function(x){
       des <- str_c(des,reg2)
     } else if (x %in% 1:2)
       des<- str_c(des,reg1)
-    
-    
-    
-    
     
     return(des)
   }
@@ -101,3 +107,4 @@ pool.reader<- function(x){
   
   return(output)
 }
+

@@ -1,7 +1,20 @@
 # Control file for EPA's RPGen
 # Designed and written for EPA by WGG of ICF, September 26, 2017
 # Updated by AE of ORAU, 2020.
-rm(list=ls())
+
+#' Runs RPGen. 
+#'
+#' Accepts either console entry or a runfile in the /input/ folder before sourcing
+#' PopGen.R, Packages.R, and Housing.R to create a population using PUMS and httk
+#' before matching it with households in RECS and AHS. The output is found in the 
+#' /output/ folder with the name of the folder being the run name specified by the
+#' user. 
+#'
+#' @param   runfile character string of name of runfile, followed by .txt extension.
+#' @return  RECS Dataframe.
+#' @export  pophouse.csv
+#' @example RPGen.run("run1.txt")
+
 RPGen.run = function(runfile=NULL) {
   
   # setup 

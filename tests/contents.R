@@ -1,5 +1,17 @@
 # Contents Test
-# 
+# AE, ORAU, 2020
+
+#' Tests if a column in a dataframe is within a specified threshold. 
+#'
+#' Used for testing if pool inputs are within correct bounds. Will
+#' report if values exceed threshold, if values are missing, or both.
+#' Works for both characters and numerics.
+#'
+#' @param   filename name and directory of AHS input file.
+#' @param   column name of the column entered as a character.
+#' @param   threshold user specified threshold.
+#' @return  test results. If column contents are within or exceed threshold.
+
 
 contents.test<-function(df,column,threshold){
  

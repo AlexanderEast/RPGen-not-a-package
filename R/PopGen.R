@@ -2,7 +2,9 @@
 # Designed and written by WGG at ICF, July 18, 2019
 # Updated by AE of ORAU, 2020.
 
-# RANDOMIZATION AND SORTING:
+# __________ RANDOMIZATION AND SORTING __________: #
+
+
   
 splitpairs = function(str) {
   n <- str_length(str)/2
@@ -113,7 +115,7 @@ adjust_weight = function(y) {
 }
 
 
-# FILE READING:
+# __________ FILE READING __________: #
 
 read.console = function() {
   if(exists("specs")) rm(specs,inherits=TRUE)
@@ -337,7 +339,7 @@ read.pums = function() {
   return(pums)
 }  
 
-# HTTK: 
+# __________ HTTK __________: #
   
 httkvars = function(p) {
   reths <- c("Mexican American", "Other Hispanic", "Non-Hispanic White", "Non-Hispanic Black", "Other")
@@ -478,7 +480,7 @@ spleen_mass_children = function (height, weight, gender)
   return(sm)
 }
 
-# POPGEN: 
+# __________ POPGEN __________: #
 
 popgen = function (runfile=NULL) {
   cat("\n HEM population generator module")

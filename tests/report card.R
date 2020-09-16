@@ -1,6 +1,13 @@
-# report card
+# Report Card
+# AE, ORAU, 2020
 
-
+#' Prints a comprehensive test of a dataframe containing pools to the user.
+#'
+#' Calls both contents.test and pool.reader to test inputs to pool and then 
+#' list pools not included in the dataframe. 
+#'
+#' @param   x a dataframe with RPGen pool structure.
+#' @return  A report on the pool determinants and pools within the dataframe.
 
 RPGen_reportcard <-function(x){
 cat("Testing:")

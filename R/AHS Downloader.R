@@ -11,7 +11,7 @@
 #'
 #' @param   x A hyperlink to AHS 2017 Survey Data.
 #' @return  Runtime for the complete download and test.
-#' @export  AHS_RECS.rda (where the underscore is a space)
+#' @export  RPGen_RECS.rda (where the underscore is a space)
 
 
 AHS.download<-function(x){
