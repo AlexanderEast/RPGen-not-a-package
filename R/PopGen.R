@@ -8,7 +8,7 @@
 #' 
 #' @param   str a character
 #' @return  a character vector with length two
-  
+
 splitpairs = function(str) {
   n <- str_length(str)/2
   x <- substr(str,1,2)
@@ -33,12 +33,12 @@ string.values = function(x){
   return(v)
 }
 
-#' Finds the cumulative probability. 
+#' Returns a vector of cumulative probability 
 #' 
-#' Prints error code if proability is less than 0.
+#' Prints error code if probability is less than 0.
 #' 
 #' @param   x a vector of numerics
-#' @return  a numeric vector with the cumulative probabily. 
+#' @return  a numeric vector with the cumulative probability. 
 
 cumul.prob = function(x) {
   if (min(x)<0) cat("Negative values in probability vector")
@@ -48,14 +48,14 @@ cumul.prob = function(x) {
 
 #' Creates random values from seed. 
 #' 
-#' Contains a flag for changing seeds in a sensitivitiy analysis,
-#' but this is not called in RPGen. Take in a dataframe and selects
-#' n number of random values as specified by seed and a list of guiding
-#' variables (varlist).
+#' Takes in a dataframe and selects n number of random values
+#' as specified by seed and a list of guiding
+#' variables (varlist). Contains a flag for changing seeds in a sensitivity analysis; flag
+#' is not called in general use of RPGen. 
 #' 
 #' @param   var      name of dataframe
 #' @param   n        number of individuals to be selected
-#' @param   seeds    seeds used to replicate random selection
+#' @param   seeds    seeds used to drive random number selection
 #' @param   varlist  parameters to narrow selection criteria in PUMS
 #' @param   flag     Used to hold certain seeds constant
 #' @return  a numeric vector with the cumulative probabily
@@ -69,10 +69,10 @@ get.randoms = function(var,n,seeds,varlist,flag) {
   return(runif(n))
 }
 
-#' Creates multiple seeds 
+#' Creates multiple seeds to be used in random number generation 
 #' 
-#' Mutiple seeds are used as a mechanisim in the sensitivity 
-#' analysis. 
+#' The generation of multiple seeds allows for more explicit control  
+#' of random number generation for sensitivity analysis. 
 #' 
 #' @param   init.seed  The initial seed.
 #' @param   num        The number of seeds to create, based on data inputs. 
@@ -113,13 +113,14 @@ gen.pop = function(pums) {
 #' @param   q a numeric vector
 #' @return  a numeric vector with the interval between p and q.   
 
-sampleq = function(p,q){
+sampleq = function(x,p,q){
   cp.x <- cumul.prob(p)
   sel.x <- 1+findInterval(q,cp.x)
   return(sel.x)
 }
 
-#' Creates variation. 
+#' Generates two sets of random numbers that are bivariate-normal correlated taking a vector of quantiles as inputs    
+#' This is used to generate heights and weights
 #' 
 #' @param   q a dataframe
 #' @param   px a vector with values 0 and 1
@@ -192,7 +193,7 @@ adjust_weight = function(y) {
 #' 
 #' Displays error codes when entries outside of the bounds are entered.
 #' 
-#' @return  specs, a list containing the speicifcations of the user to create the population. 
+#' @return  specs, a list containing the specifcations of the user to create the population. 
 
 read.console = function() {
   if(exists("specs")) rm(specs,inherits=TRUE)
@@ -274,10 +275,10 @@ read.console = function() {
   if (length(rg3) == 0 ){
     st3 <- c(st3,allstates$FIPS)
   } else {
-  if (str_detect(rg3,"1"))  st3 <- c(st3,allstates$FIPS[allstates$region=="1"])
-  if (str_detect(rg3,"2"))  st3 <- c(st3,allstates$FIPS[allstates$region=="2"])
-  if (str_detect(rg3,"3"))  st3 <- c(st3,allstates$FIPS[allstates$region=="3"])    
-  if (str_detect(rg3,"4"))  st3 <- c(st3,allstates$FIPS[allstates$region=="4"])
+    if (str_detect(rg3,"1"))  st3 <- c(st3,allstates$FIPS[allstates$region=="1"])
+    if (str_detect(rg3,"2"))  st3 <- c(st3,allstates$FIPS[allstates$region=="2"])
+    if (str_detect(rg3,"3"))  st3 <- c(st3,allstates$FIPS[allstates$region=="3"])    
+    if (str_detect(rg3,"4"))  st3 <- c(st3,allstates$FIPS[allstates$region=="4"])
   }
   st4     <- unique(st3[order(st3)])
   states  <- st4[st4!=""]
@@ -299,11 +300,11 @@ read.console = function() {
 }
 
 
-#' Reads and stores input from popfile .txt file 
+#' Reads and stores input from popfile.txt file 
 #' 
 #' Creates a list to apply user specifications to the datasets. 
 #' @param   popfile the .txt input file
-#' @return  specs, a list containing the speicifcations of the user to create the population. 
+#' @return  specs, a list containing the specifications of the user to create the population. 
 
 read.popfile = function(popfile){
   
@@ -438,7 +439,7 @@ read.pums = function() {
 #' @param  p a datatable with ethnicity, age, and gender
 #' @return a datatable of demograhpics
 
-  
+
 httkvars = function(p) {
   reths <- c("Mexican American", "Other Hispanic", "Non-Hispanic White", "Non-Hispanic Black", "Other")
   q <- data.table::copy(p)
@@ -449,12 +450,14 @@ httkvars = function(p) {
   nreth[p$ethnicity=="N" & p$race=="B"] <- 4
   q$reth <- as.factor(reths[nreth])
   q.months <- get.randoms("months",nrow(q),g$seeds,g$var.list,0)
+  q$age <- as.numeric(q$age)
   q$age_months <- 12*q$age+floor(12*q.months)
   q$temp_age_months <- 12*q$age+floor(12*q.months)
   q$age_years <- q$age
   q$gender[q$gender=="M"] <- "Male"
   q$gender[q$gender=="F"] <- "Female"
   q$num <- 1:nrow(q)
+  q$ages <- str_c("'",q$ages,"'")
   return(q)
 }
 
@@ -488,7 +491,7 @@ random_gen_height_weight = function(hbw_dt,specs) {
   hbw_dt[, `:=`(q.hw1,  get.randoms("hw1", nrow(hbw_dt),specs$seeds,specs$var.list,0))] 
   hbw_dt[, `:=`(q.hw2,  get.randoms("hw2", nrow(hbw_dt),specs$seeds,specs$var.list,0))]
   hbw_dt[, `:=`(c("logbw_resid", "logh_resid"), as.data.frame(hw_kde[[1]]$x[sampleq(unique(nkde), hw_kde[[1]]$w, q.nkde), ] 
-        + bi_norm_cor(cbind(q.hw1,q.hw2), mean=c(0, 0), sigma=hw_kde[[1]]$H))), by = list(gender, reth)]
+                                                              + bi_norm_cor(cbind(q.hw1,q.hw2), mean=c(0, 0), sigma=hw_kde[[1]]$H))), by = list(gender, reth)]
   hbw_dt[, `:=`(weight, pmin(exp(mean_logbw + logbw_resid),160))]   # cap at 160 kg
   hbw_dt[, `:=`(height, pmin(exp(mean_logh + logh_resid),225))]     # cap at 225 cm
   hbw_dt[, `:=`(id, NULL)]
@@ -501,7 +504,7 @@ random_gen_height_weight = function(hbw_dt,specs) {
 }
 
 
-#' Generates parameters used toxicokinetics from ethnicity, age, gender, weight, and height. 
+#' Generates toxicokinetic parameters for body tissues using ethnicity, age, gender, weight, and height as inputs 
 #'
 #' Adapted from httk, contains get.randoms() to add variabiltiy. 
 #' @citation Pearce, R., Setzer, R., Strope, C., Sipes, N., & Wambaugh, J. (2017). 
@@ -615,7 +618,7 @@ spleen_mass_children = function (height, weight, gender)
 
 # PopGen function:
 
-#' Creates a population and matching physoloigical/toxicokinetic variables.  
+#' Creates a population with matching physiological/toxicokinetic variables.  
 #'
 #' Accepts either console entry or a runfile in the /input/ folder before 
 #' creating a population using PUMS and httk.
@@ -624,14 +627,14 @@ spleen_mass_children = function (height, weight, gender)
 #' @return  a data table containing the generated random population. 
 
 popgen = function (runfile=NULL) {
-  cat("\n HEM population generator module")
+  cat("\n CHEM Residential Population Generator Module (RPGen)")
   if(!is.null(runfile)) specs <- read.popfile(runfile)
   if(is.null(runfile))  specs <- read.console()
   specs$var.list <- c("pums","ahs","recs","months","nkde","hw1","hw2","norm",
                       "logn","flow","adip","gliv","hema","rfun1","rfun2")
   specs$seeds    <- get.seeds(specs$run.seed,length(specs$var.list))
   g       <<- specs
-  cat("Saved run settings\n")
+  cat(" Run settings saved. Running RPGen.\n")
   pums1    <- read.pums()
   sel.pop  <- gen.pop(pums1)
   pop0     <- pums1[(sel.pop),]
@@ -653,4 +656,3 @@ popgen = function (runfile=NULL) {
   indiv_dt <- setorder(indiv_dt,num)
   return(indiv_dt)
 }
-
